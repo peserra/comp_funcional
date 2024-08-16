@@ -47,7 +47,7 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
 bindir     = "/mnt/c/Users/pedro/OneDrive/code/haskell/Projeto1/DetectIdiom/.stack-work/install/x86_64-linux/0bcffccbd7a5531de04411a1fc3cae00ddb3357b71d7c59dc5c93e2b62dde0e4/9.6.6/bin"
-libdir     = "/mnt/c/Users/pedro/OneDrive/code/haskell/Projeto1/DetectIdiom/.stack-work/install/x86_64-linux/0bcffccbd7a5531de04411a1fc3cae00ddb3357b71d7c59dc5c93e2b62dde0e4/9.6.6/lib/x86_64-linux-ghc-9.6.6/DetectIdiom-0.1.0.0-19uh6x2wr0VIRLce4QMy9i-DetectIdiom"
+libdir     = "/mnt/c/Users/pedro/OneDrive/code/haskell/Projeto1/DetectIdiom/.stack-work/install/x86_64-linux/0bcffccbd7a5531de04411a1fc3cae00ddb3357b71d7c59dc5c93e2b62dde0e4/9.6.6/lib/x86_64-linux-ghc-9.6.6/DetectIdiom-0.1.0.0-6gKcdpfXySk4X1d1RTELcU-DetectIdiom"
 dynlibdir  = "/mnt/c/Users/pedro/OneDrive/code/haskell/Projeto1/DetectIdiom/.stack-work/install/x86_64-linux/0bcffccbd7a5531de04411a1fc3cae00ddb3357b71d7c59dc5c93e2b62dde0e4/9.6.6/lib/x86_64-linux-ghc-9.6.6"
 datadir    = "/mnt/c/Users/pedro/OneDrive/code/haskell/Projeto1/DetectIdiom/.stack-work/install/x86_64-linux/0bcffccbd7a5531de04411a1fc3cae00ddb3357b71d7c59dc5c93e2b62dde0e4/9.6.6/share/x86_64-linux-ghc-9.6.6/DetectIdiom-0.1.0.0"
 libexecdir = "/mnt/c/Users/pedro/OneDrive/code/haskell/Projeto1/DetectIdiom/.stack-work/install/x86_64-linux/0bcffccbd7a5531de04411a1fc3cae00ddb3357b71d7c59dc5c93e2b62dde0e4/9.6.6/libexec/x86_64-linux-ghc-9.6.6/DetectIdiom-0.1.0.0"
