@@ -61,11 +61,10 @@ criaListaFrequencia txt = ordenaNGramas . dicionario $ concat $ criaListaNGramas
 
 
 encontraDiferencaAbs :: (Num a1, Eq a2) => (a2, a1) -> [(a2, a1)] -> a1
-encontraDiferencaAbs _ [] = 1000 
+encontraDiferencaAbs _ [] = 500 
 encontraDiferencaAbs x (y:ys)
     | fst x == fst y  = abs(snd x - snd y)
     | otherwise =  encontraDiferencaAbs x ys
-
 
 
 main :: IO ()
@@ -103,7 +102,7 @@ main = do
     let compPor = sum [encontraDiferencaAbs i idxTst | i <- idxPor]
     let compSpn = sum [encontraDiferencaAbs i idxTst | i <- idxSpn]
 
-    let listLang = [("Ingles", compEng), ("Frances", compFrn), ("Alemao", compGer),("Portugues", compPor),("Espanhol", compSpn)]
-    print ( fst $ menorTupla listLang)
+    let listLang = [(compEng, "Ingles"), ( compFrn, "Frances"), ( compGer, "Alemao"),(compPor, "Portugues"),(compSpn,"Espanhol")]
+    print ( snd $ minimum listLang)
     --print (montaArvBusca $ criaListaIndx listaFrequenciaEng)
     --putStrLn refPor
