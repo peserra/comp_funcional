@@ -30,16 +30,6 @@
   (major1) == 0 && (major2) <  6 || \
   (major1) == 0 && (major2) == 6 && (minor) <= 7)
 #endif /* MIN_VERSION_containers */
-/* package text-2.0.2 */
-#ifndef VERSION_text
-#define VERSION_text "2.0.2"
-#endif /* VERSION_text */
-#ifndef MIN_VERSION_text
-#define MIN_VERSION_text(major1,major2,minor) (\
-  (major1) <  2 || \
-  (major1) == 2 && (major2) <  0 || \
-  (major1) == 2 && (major2) == 0 && (minor) <= 2)
-#endif /* MIN_VERSION_text */
 
 /* tool gcc-11 */
 #ifndef TOOL_VERSION_gcc
@@ -133,7 +123,7 @@
 #endif /* MIN_TOOL_VERSION_strip */
 
 #ifndef CURRENT_COMPONENT_ID
-#define CURRENT_COMPONENT_ID "DetectIdiom-0.1.0.0-6gKcdpfXySk4X1d1RTELcU-DetectIdiom"
+#define CURRENT_COMPONENT_ID "DetectIdiom-0.1.0.0-19uh6x2wr0VIRLce4QMy9i-DetectIdiom"
 #endif /* CURRENT_COMPONENT_ID */
 #ifndef CURRENT_PACKAGE_VERSION
 #define CURRENT_PACKAGE_VERSION "0.1.0.0"

@@ -60,7 +60,7 @@ criaListaNGramasTexto :: String -> [[String]]
 criaListaNGramasTexto txt = aplica3Grama $ L.map ajustaString $ words txt
 
 criaListaFrequencia :: String -> [(String, Int)]
-criaListaFrequencia txt = ordenaNGramas . dicionario $ concat $ criaListaNGramasTexto txt
+criaListaFrequencia txt = ordenaNGramas . dicionario . concat $ criaListaNGramasTexto txt
 
 main :: IO ()
 main = do
@@ -90,6 +90,6 @@ main = do
     let listComp = fmap (fmap (`encontraDiferencaAbs` idxCmp)) freqIndx
 
     let listLang = zip (map sum listComp) [English ..]
-    
+    putStr "Idiom detected: "
     print(snd $ minimum listLang)
    
