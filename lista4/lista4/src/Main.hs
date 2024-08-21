@@ -42,7 +42,7 @@ delete v (Set xs) = Set $ v `Data.List.delete` xs
 
 -- instancia de monoid
 instance Ord a => Semigroup (Set a) where
-    (Set xs) <> (Set ys) = fromList $ xs <> ys
+    (Set xs) <> (Set ys) = fromList $ xs <> ys -- como sabe que nao eh concat
 
 instance Ord a => Monoid (Set a) where
     mempty = Set []
