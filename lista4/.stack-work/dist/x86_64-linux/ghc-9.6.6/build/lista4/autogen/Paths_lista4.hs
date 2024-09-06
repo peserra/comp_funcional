@@ -46,12 +46,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/bin"
-libdir     = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/lib/x86_64-linux-ghc-9.6.6/lista4-0.1.0.0-hsw12Ht3VeFlBoDdJCqId-lista4"
-dynlibdir  = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/lib/x86_64-linux-ghc-9.6.6"
-datadir    = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/share/x86_64-linux-ghc-9.6.6/lista4-0.1.0.0"
-libexecdir = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/libexec/x86_64-linux-ghc-9.6.6/lista4-0.1.0.0"
-sysconfdir = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/etc"
+bindir     = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/bin"
+libdir     = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/lib/x86_64-linux-ghc-9.6.6/lista4-0.1.0.0-hsw12Ht3VeFlBoDdJCqId-lista4"
+dynlibdir  = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/lib/x86_64-linux-ghc-9.6.6"
+datadir    = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/share/x86_64-linux-ghc-9.6.6/lista4-0.1.0.0"
+libexecdir = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/libexec/x86_64-linux-ghc-9.6.6/lista4-0.1.0.0"
+sysconfdir = "/mnt/c/Users/pedro/OneDrive/code/haskell/lista4/.stack-work/install/x86_64-linux/92c36805fe9f6c50550d3c2a8a248656d196867bb352f4e006c2315f46a90f33/9.6.6/etc"
 
 getBinDir     = catchIO (getEnv "lista4_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "lista4_libdir")     (\_ -> return libdir)
