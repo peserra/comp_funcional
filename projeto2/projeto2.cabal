@@ -25,6 +25,7 @@ executable projeto2
                        containers >= 0.6.7,
                        text,
                        process,
+                       mtl
                        unix
   ghc-options:         -Wall
                        -Wcompat

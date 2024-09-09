@@ -2,16 +2,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wno-unused-do-bind #-}
 -- nao sei o que sao overloads, mas precisa pra funcionar melhor
-
-
 module Main (main) where
 
 import Data.GI.Base
 import qualified GI.Gtk as Gtk
 import qualified Data.Text as T
-import GI.Gtk (dialogNew)
-
-
 
 
 app :: IO ()
