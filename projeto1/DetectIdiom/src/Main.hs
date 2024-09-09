@@ -3,27 +3,63 @@ import qualified Data.Map as M
 import qualified Data.List as L
 --import qualified Data.Text as T
 import Data.Char
+import Control.Monad.State
+
+-- Definindo Languages
+data Languages = English | French | German | Portuguese | Spanish 
+                    deriving (Enum, Show, Eq, Ord)
 
 
-data Languages = English | French | German | Portuguese | Spanish deriving (Enum,Show, Eq, Ord)
+data IdiomState = IdiomState{
+    english     :: [(String, Int)],
+    french      :: [(String, Int)],
+    german      :: [(String, Int)],
+    portuguese  :: [(String, Int)],
+    spanish     :: [(String, Int)] 
+} deriving Show
 
--- SOLUÇÃO COM ARVORE SERÁ IMPLEMENTADA COMO MELHORIA NO PROXIMO PROJETO
--- data Tree a = Leaf | Node (Tree a) a (Tree a) deriving Show
--- montaArvBusca :: [a] -> Tree a
--- montaArvBusca [] = Leaf
--- montaArvBusca xs = Node (montaArvBusca ls) (head rs) (montaArvBusca $ tail rs)
---   where
---     (ls, rs) = separaLista xs
 
--- separaLista :: [a] -> ([a],[a])
--- separaLista xs = splitAt (length xs `div` 2) xs
+carregaTreinamento :: IO IdiomState
+carregaTreinamento = do 
+    let tamLista = 300 
+    
+    eng <- readFile "TextosInput/eng.txt"
+    frn <- readFile "TextosInput/frn.txt"
+    ger <- readFile "TextosInput/ger.txt"
+    por <- readFile "TextosInput/por.txt"
+    spn <- readFile "TextosInput/spn.txt"
 
--- buscaNaArvore x Leaf = 200
--- buscaNaArvore x  (Node l v r)
---     | fst x = 300
---     | fst x == fst v = abs(snd x - snd v)
---     | snd x < snd v = buscaNaArvore x l
---     | otherwise = buscaNaArvore x r
+     -- cria listas das top frequencias indexadas dos arquivos para referencia
+    let listaRefs = [eng, frn, ger, por, spn]
+    let lstFreqs = map (take tamLista . criaListaFrequencia) listaRefs
+    -- associando cada lista de frequencia a uma entrada da lista
+    let [engFreq, frnFreq, gerFreq, porFreq, spnFreq] = map criaListaIndx lstFreqs
+    
+    -- remontando state, com os valores das listas preenchidos
+    return IdiomState {
+        english     = engFreq,
+        french      = frnFreq,
+        german      = gerFreq,
+        portuguese  = porFreq,
+        spanish     = spnFreq
+    }
+
+
+getEnglishFreq :: State IdiomState [(String, Int)]
+getEnglishFreq = gets english
+
+getFrenchFreq :: State IdiomState [(String, Int)]
+getFrenchFreq = gets french
+
+getGermanFreq :: State IdiomState [(String, Int)]
+getGermanFreq = gets german
+
+getPortugueseFreq :: State IdiomState [(String, Int)]
+getPortugueseFreq = gets portuguese
+
+getSpanishFreq :: State IdiomState [(String, Int)]
+getSpanishFreq = gets spanish
+
 
 criaListaIndx :: [(String, Int)] -> [(String, Int)]
 criaListaIndx xs = zip (map fst xs) [0 ..]
@@ -62,34 +98,35 @@ criaListaNGramasTexto txt = aplica3Grama $ L.map ajustaString $ words txt
 criaListaFrequencia :: String -> [(String, Int)]
 criaListaFrequencia txt = ordenaNGramas . dicionario . concat $ criaListaNGramasTexto txt
 
-main :: IO ()
-main = do
-
+detectIdiom :: String -> State IdiomState Languages
+detectIdiom text = do
     let tamLista = 300 
-
-    eng <- readFile "TextosInput/eng.txt"
-    frn <- readFile "TextosInput/frn.txt"
-    ger <- readFile "TextosInput/ger.txt"
-    por <- readFile "TextosInput/por.txt"
-    spn <- readFile "TextosInput/spn.txt"
-    cmp <- readFile "TextosInput/comparado.txt"
-
-    -- cria listas das top frequencias indexadas dos arquivos para referencia
-    let listaRefs = [eng, frn, ger, por, spn]
-    let lstFreqs = map (take tamLista . criaListaFrequencia) listaRefs
-    let freqIndx = map criaListaIndx lstFreqs
-    
     -- cria separadamente a lista de frequencia e o indexamento do ngrama do texto de input
-    let lstFreqComp =  take tamLista $ criaListaFrequencia cmp
+    let lstFreqComp =  take tamLista $ criaListaFrequencia text
     let idxCmp = criaListaIndx lstFreqComp
 
-    -- será implementado no projeto 2 como melhoria de performance (se necessario)
-    --let arv = montaArvBusca $ map criaListaIndx fst listaFrequenciaEng
+    -- carrega treinamentos
+    engFreq <- getEnglishFreq
+    frnFreq <- getFrenchFreq
+    gerFreq <- getGermanFreq
+    porFreq <- getPortugueseFreq
+    spnFreq <- getSpanishFreq
+    
+    let freqIndx = [engFreq, frnFreq, gerFreq, porFreq, spnFreq]
 
     -- lista de comparação do perfil de cada linguagem com o texto a comparar
     let listComp = fmap (fmap (`encontraDiferencaAbs` idxCmp)) freqIndx
 
     let listLang = zip (map sum listComp) [English ..]
-    putStr "Idiom detected: "
-    print(snd $ minimum listLang)
-   
+    return $ snd $ minimum listLang
+
+main :: IO ()
+main = do
+    initialState <- carregaTreinamento
+    text <- readFile "TextosInput/comparado.txt"
+    let detectedLanguage = evalState (detectIdiom text) initialState
+    print detectedLanguage
+    
+    text <- readFile "TextosInput/comparado2.txt"
+    let detectedLanguage = evalState (detectIdiom text) initialState
+    print detectedLanguage
