@@ -1,4 +1,4 @@
-module Idiom (DetectIdiom) where
+module Idiom (detectIdiom) where
 import qualified Data.Map as M
 import qualified Data.List as L
 --import qualified Data.Text as T
@@ -45,7 +45,7 @@ criaListaNGramasTexto txt = aplica3Grama $ L.map ajustaString $ words txt
 criaListaFrequencia :: String -> [(String, Int)]
 criaListaFrequencia txt = ordenaNGramas . dicionario . concat $ criaListaNGramasTexto txt
 
-DetectIdiom text = do
+detectIdiom text = do
     let tamLista = 300 
 
     eng <- readFile "TextosInput/eng.txt"
