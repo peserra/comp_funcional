@@ -1,12 +1,15 @@
-module Idiom (detectIdiom) where
+module Idiom (detectLanguage) where
 import qualified Data.Map as M
 import qualified Data.List as L
 --import qualified Data.Text as T
 import Data.Char
+import Control.Monad.State
+
+type Dict k v = [(k, v)]
 
 data Lingua = English | French | German | Portuguese | Spanish deriving (Enum,Show, Eq, Ord)
 
-data Treinamentos = Treinamentos {
+newtype Treinamentos = Treinamentos {
     dictTreinamentos  :: Dict Lingua [(String, Int)]
 } 
 
@@ -24,7 +27,7 @@ pegaConteudo bs = modify $ \s -> s{conteudoTexto = bs}
 
 achaLingua :: [(String, Int)] -> Estado Lingua
 achaLingua cmps = do
-    -- guarda os treinamentos
+    -- pega os treinamentos
     ts <- gets treinamentos
     -- determina a lingua
     l <- fmap (fmap (`encontraDiferencaAbs` cmps)) (values ts) 
@@ -36,7 +39,7 @@ treinaLinguas :: Dict Lingua String -> Treinamentos
 treinaLinguas ls =
     let lstFreqs = map (take 300 . criaListaFrequencia) (values ls) in
     -- associando cada lista de frequencia a uma entrada da lista
-        zip (keys ls) (map fst ls map (criaListaIndx ) lstFreqs)
+        zip (keys ls) (map fst ls (map criaListaIndx lstFreqs))
 
 
 leArquivos:: IO (Dict Lingua String)
@@ -51,7 +54,6 @@ leArquivos = do
     let listaRefs = [eng, frn, ger, por, spn]
     return $ zip [English ..] listaRefs 
 
-type Dict k v = [(k, v)]
 
 -- Consulta e devolve, caso exista, a entrada do dicionário cuja chave
 -- corresponde à chave fornecida
@@ -115,14 +117,12 @@ criaListaNGramasTexto txt = aplica3Grama $ L.map ajustaString $ words txt
 criaListaFrequencia :: String -> [(String, Int)]
 criaListaFrequencia txt = ordenaNGramas . dicionario . concat $ criaListaNGramasTexto txt
 
-detectIdiom text = do
+detectLanguage text = do
        
     -- cria separadamente a lista de frequencia e o indexamento do ngrama do texto de input
-    let lstFreqComp =  take tamLista $ criaListaFrequencia cmp
+    let lstFreqComp =  take 300 $ criaListaFrequencia text
     let idxCmp = criaListaIndx lstFreqComp
 
     -- lista de comparação do perfil de cada linguagem com o texto a comparar
-    let listComp = fmap (fmap (`encontraDiferencaAbs` idxCmp)) freqIndx
-
-    let listLang = zip (map sum listComp) [English ..]
-    snd $ minimum listLang
+    --let listComp = fmap (fmap (`encontraDiferencaAbs` idxCmp)) freqIndx
+    return $ achaLingua idxCmp
