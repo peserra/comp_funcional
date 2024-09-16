@@ -27,10 +27,6 @@ executable projeto2
                        text,
                        process,
                        mtl,
-                       unix,
-                       directory,
-                       transformers,
-                       cmark,
 
   ghc-options:         -Wall
                        -Wcompat

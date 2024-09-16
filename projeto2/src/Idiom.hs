@@ -1,9 +1,14 @@
-module Idiom (detectLanguage) where
+module Idiom (findWrongWordsList) where
 import qualified Data.Map as M
 import qualified Data.List as L
 --import qualified Data.Text as T
 import Data.Char
 import Control.Monad.State
+import qualified Data.Set as Set
+import System.Process
+import Data.Maybe (fromMaybe)
+
+-- ########## Funções monadicas ##########
 
 type Dict k v = [(k, v)]
 
@@ -11,35 +16,44 @@ data Lingua = English | French | German | Portuguese | Spanish deriving (Enum,Sh
 
 newtype Treinamentos = Treinamentos {
     dictTreinamentos  :: Dict Lingua [(String, Int)]
-} 
+}
 
 data EstadoAplicacao = EstadoAplicacao {
     treinamentos    :: Treinamentos,
     linguaAtual     :: Lingua,
-    conteudoTexto   :: [String]
+    linguaAspell    :: Dict Lingua String
+
 }
 
 type Estado a = State EstadoAplicacao a
 
-pegaConteudo :: [String] -> Estado ()
-pegaConteudo bs = modify $ \s -> s{conteudoTexto = bs}
-
-
-achaLingua :: [(String, Int)] -> Estado Lingua
-achaLingua cmps = do
+achaLingua :: [(String, Int)] -> Estado  String
+achaLingua comparado = do
     -- pega os treinamentos
-    ts <- gets treinamentos
-    -- determina a lingua
-    l <- fmap (fmap (`encontraDiferencaAbs` cmps)) (values ts) 
+    ts <- gets (dictTreinamentos . treinamentos)
+    -- linguas treinadas
+    let ls = keys ts
+    -- cria lista de comparacoes
+    let comps =  fmap (fmap (`encontraDiferencaAbs` comparado)) (values ts)
+    -- seleciona a lingua 
+    let l = snd $ minimum $ zip (map sum comps) ls
+    -- guarda lingua no estado
     modify $ \s -> s{linguaAtual = l}
-    return l
+    
+    -- pega o correspondente do dicionario aspell
+    ld <- gets linguaAspell
+    let aspell_dict = dictGet l ld
+    
+    return $ fromMaybe "" aspell_dict
 
 
+-- cria lista de frequencia de ngramas a partir dos textos
+-- indexa essa lista e coloca em Treinamentos
 treinaLinguas :: Dict Lingua String -> Treinamentos
 treinaLinguas ls =
     let lstFreqs = map (take 300 . criaListaFrequencia) (values ls) in
-    -- associando cada lista de frequencia a uma entrada da lista
-        zip (keys ls) (map fst ls (map criaListaIndx lstFreqs))
+        let lstIndxFreqs = map criaListaIndx lstFreqs in
+            Treinamentos $ zip (keys ls) lstIndxFreqs
 
 
 leArquivos:: IO (Dict Lingua String)
@@ -52,7 +66,7 @@ leArquivos = do
 
      -- cria listas das top frequencias indexadas dos arquivos para referencia
     let listaRefs = [eng, frn, ger, por, spn]
-    return $ zip [English ..] listaRefs 
+    return $ zip [English ..] listaRefs
 
 
 -- Consulta e devolve, caso exista, a entrada do dicionário cuja chave
@@ -72,12 +86,21 @@ dictPut k v ((k0, v0) : kvs)
   | otherwise = (k0, v0) : dictPut k v kvs
 
 keys :: Dict k v -> [k]
-keys d = map fst d
+keys = map fst
 
 values :: Dict k v -> [v]
-values d = map snd d
+values = map snd
 
+rodaAspell :: [String] -> String -> IO [String]
+rodaAspell palavras lingua = do
+    let dict = "--lang=" ++ lingua
+    erradas <- readProcess "aspell" [dict, "list"] (unlines palavras)
+    return $ removeDuplicados (lines erradas)
 
+-- ########## Funçoes puras ################
+
+removeDuplicados :: (Ord a) => [a] -> [a]
+removeDuplicados = Set.toList . Set.fromList
 
 
 criaListaIndx :: [(String, Int)] -> [(String, Int)]
@@ -104,9 +127,9 @@ aplica3Grama :: [String] -> [[String]]
 aplica3Grama = L.map (geraNGrama 3)
 
 encontraDiferencaAbs :: (Num a1, Eq a2) => (a2, a1) -> [(a2, a1)] -> a1
-encontraDiferencaAbs _ [] = 1000 
+encontraDiferencaAbs _ [] = 1000
 encontraDiferencaAbs x (y:ys)
-    | fst x == fst y  = abs(snd x - snd y)
+    | fst x == fst y  = abs (snd x - snd y)
     | otherwise =  encontraDiferencaAbs x ys
 
 
@@ -117,12 +140,35 @@ criaListaNGramasTexto txt = aplica3Grama $ L.map ajustaString $ words txt
 criaListaFrequencia :: String -> [(String, Int)]
 criaListaFrequencia txt = ordenaNGramas . dicionario . concat $ criaListaNGramasTexto txt
 
+detectLanguage :: String -> IO String
 detectLanguage text = do
-       
-    -- cria separadamente a lista de frequencia e o indexamento do ngrama do texto de input
-    let lstFreqComp =  take 300 $ criaListaFrequencia text
+    -- Lê os arquivos de treinamento
+    arquivos <- leArquivos
+    
+    -- Cria os treinamentos (lista de frequências)
+    let trs = treinaLinguas arquivos
+    
+    -- Cria a lista de frequência de n-gramas do texto de entrada
+    let lstFreqComp = take 300 $ criaListaFrequencia text
     let idxCmp = criaListaIndx lstFreqComp
 
-    -- lista de comparação do perfil de cada linguagem com o texto a comparar
-    --let listComp = fmap (fmap (`encontraDiferencaAbs` idxCmp)) freqIndx
-    return $ achaLingua idxCmp
+    let dictLinguas = zip [English ..] ["en_US", "fr_FR", "de_DE", "pt_BR", "es_LA"]
+    
+    -- Define o estado inicial com os treinamentos e outros valores padrão
+    let estadoInicial = EstadoAplicacao {
+            treinamentos = trs,
+            linguaAtual = English,  -- Valor padrão
+            linguaAspell = dictLinguas
+        }
+    
+    -- Avalia o estado e executa a função achaLingua
+    return $ evalState (achaLingua idxCmp) estadoInicial
+
+
+findWrongWordsList :: String -> IO [String]
+findWrongWordsList buffer = do
+    l <- detectLanguage buffer
+    print l 
+    rodaAspell (words buffer) l
+    
+     

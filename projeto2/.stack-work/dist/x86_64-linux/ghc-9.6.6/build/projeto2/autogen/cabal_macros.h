@@ -20,16 +20,6 @@
   (major1) == 4 && (major2) <  18 || \
   (major1) == 4 && (major2) == 18 && (minor) <= 2)
 #endif /* MIN_VERSION_base */
-/* package cmark-0.6.1 */
-#ifndef VERSION_cmark
-#define VERSION_cmark "0.6.1"
-#endif /* VERSION_cmark */
-#ifndef MIN_VERSION_cmark
-#define MIN_VERSION_cmark(major1,major2,minor) (\
-  (major1) <  0 || \
-  (major1) == 0 && (major2) <  6 || \
-  (major1) == 0 && (major2) == 6 && (minor) <= 1)
-#endif /* MIN_VERSION_cmark */
 /* package containers-0.6.7 */
 #ifndef VERSION_containers
 #define VERSION_containers "0.6.7"
@@ -40,16 +30,6 @@
   (major1) == 0 && (major2) <  6 || \
   (major1) == 0 && (major2) == 6 && (minor) <= 7)
 #endif /* MIN_VERSION_containers */
-/* package directory-1.3.8.5 */
-#ifndef VERSION_directory
-#define VERSION_directory "1.3.8.5"
-#endif /* VERSION_directory */
-#ifndef MIN_VERSION_directory
-#define MIN_VERSION_directory(major1,major2,minor) (\
-  (major1) <  1 || \
-  (major1) == 1 && (major2) <  3 || \
-  (major1) == 1 && (major2) == 3 && (minor) <= 8)
-#endif /* MIN_VERSION_directory */
 /* package gi-gtk-3.0.43 */
 #ifndef VERSION_gi_gtk
 #define VERSION_gi_gtk "3.0.43"
@@ -100,26 +80,6 @@
   (major1) == 2 && (major2) <  0 || \
   (major1) == 2 && (major2) == 0 && (minor) <= 2)
 #endif /* MIN_VERSION_text */
-/* package transformers-0.6.1.0 */
-#ifndef VERSION_transformers
-#define VERSION_transformers "0.6.1.0"
-#endif /* VERSION_transformers */
-#ifndef MIN_VERSION_transformers
-#define MIN_VERSION_transformers(major1,major2,minor) (\
-  (major1) <  0 || \
-  (major1) == 0 && (major2) <  6 || \
-  (major1) == 0 && (major2) == 6 && (minor) <= 1)
-#endif /* MIN_VERSION_transformers */
-/* package unix-2.8.4.0 */
-#ifndef VERSION_unix
-#define VERSION_unix "2.8.4.0"
-#endif /* VERSION_unix */
-#ifndef MIN_VERSION_unix
-#define MIN_VERSION_unix(major1,major2,minor) (\
-  (major1) <  2 || \
-  (major1) == 2 && (major2) <  8 || \
-  (major1) == 2 && (major2) == 8 && (minor) <= 4)
-#endif /* MIN_VERSION_unix */
 
 /* tool gcc-11 */
 #ifndef TOOL_VERSION_gcc
@@ -223,7 +183,7 @@
 #endif /* MIN_TOOL_VERSION_strip */
 
 #ifndef CURRENT_COMPONENT_ID
-#define CURRENT_COMPONENT_ID "projeto2-0.1.0.0-HPV5KKgPxvn2Rz7jRje0GQ-projeto2"
+#define CURRENT_COMPONENT_ID "projeto2-0.1.0.0-BKMLNYj9vnd1KaQd5DoC5l-projeto2"
 #endif /* CURRENT_COMPONENT_ID */
 #ifndef CURRENT_PACKAGE_VERSION
 #define CURRENT_PACKAGE_VERSION "0.1.0.0"

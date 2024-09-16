@@ -8,42 +8,57 @@ import Data.GI.Base
 import qualified GI.Gtk as Gtk
 import qualified Data.Text as T
 import Data.Int (Int32)
+
 import Idiom
 
---import Control.Concurrent.MVar (newEmptyMVar, putMVar, takeMVar)
-import Control.Monad.IO.Class (liftIO)
+getCaminhoArquivo :: Gtk.Entry -> IO String
+getCaminhoArquivo entry = do
+    entryText <- Gtk.entryGetText entry
+    let inText = T.unpack entryText
+    let caminhoPasta = "./TextosInput/"
+    return (caminhoPasta ++ inText ++ ".txt")
 
--- Função para abrir um FileChooserDialog para salvar um arquivo
-openSaveDialog :: IO (Maybe FilePath)
-openSaveDialog = do
-    dialog <- new Gtk.FileChooserDialog [ #action := Gtk.FileChooserActionSave
-                                        , #title := "Save File"
-                                        ]
-    _ <- Gtk.dialogAddButton dialog "Cancel" (fromIntegral (fromEnum Gtk.ResponseTypeCancel))
-    _ <- Gtk.dialogAddButton dialog "Save" (fromIntegral (fromEnum Gtk.ResponseTypeAccept))
-    Gtk.fileChooserSetDoOverwriteConfirmation dialog True
 
-    response <- Gtk.dialogRun dialog
-    if response == fromIntegral (fromEnum Gtk.ResponseTypeAccept)
-        then do
-            -- Obtém o caminho do arquivo selecionado
-            maybeFilePath <- Gtk.fileChooserGetFilename (Gtk.castTo Gtk.FileChooser dialog)
-            -- Fecha o diálogo após o uso
-            Gtk.widgetDestroy dialog
-            return maybeFilePath
-        else do
-            -- Fecha o diálogo se o usuário cancelar
-            Gtk.widgetDestroy dialog
-            return Nothing
+salvaArquivo :: FilePath -> String -> IO ()
+salvaArquivo = writeFile 
+
+
+-- cria uma janela de salvamento
+abreJanelaSave txtBuffer = do
+    w <- Gtk.windowNew Gtk.WindowTypeToplevel
+    Gtk.setWindowTitle w "File Name"
+    Gtk.setWindowDefaultHeight w 35
+    Gtk.setWindowDefaultWidth w 350
+    Gtk.setWindowWindowPosition w Gtk.WindowPositionCenter
+
+    -- Cria uma caixa horizontal para organizar o Entry e o Botão lado a lado
+    hbox <- Gtk.boxNew Gtk.OrientationHorizontal 10
+    Gtk.containerAdd w hbox
+
+    -- Cria um campo de entrada (Entry)
+    entry <- Gtk.entryNew
+    Gtk.boxPackStart hbox entry True True 0  -- O campo de entrada preenche o espaço disponível
+
+    -- Cria um botão ao lado do Entry
+    okBtn <- Gtk.buttonNewWithLabel "Ok"
+
+    Gtk.boxPackStart hbox okBtn False False 0  -- O botão tem tamanho fixo e fica ao lado
+    #showAll w
+
+    on okBtn #clicked $ do
+        caminho <- getCaminhoArquivo entry 
+        salvaArquivo caminho txtBuffer
+        #destroy w
+    return ()
+
 
 -- chat gpt com modificações
-
 highlightWord word buffer = do
       -- Cria uma tag para aplicar uma cor (ex: vermelho)
     tagRed <- new Gtk.TextTag [ #foreground := "red" ]
     tagTable <- Gtk.textBufferGetTagTable buffer
     Gtk.textTagTableAdd tagTable tagRed
-    
+
     (startIter, endIter) <-  #getBounds buffer
     text <- Gtk.textBufferGetText buffer startIter endIter True
     let wordPos = T.breakOn word text
@@ -69,17 +84,17 @@ app = do
 
     grid <- new Gtk.Grid []
     #add win grid
-    
+
     btnBox <- new Gtk.Box [ #orientation := Gtk.OrientationHorizontal ]
     btnNew <- new Gtk.Button [#label := "new"]
     btnSave <- new Gtk.Button [#label := "save"]
-    
+
     #add btnBox btnNew
     #add btnBox btnSave
 
     -- Cria um TextBuffer e um TextView para editar texto
     textView <- new Gtk.TextView []
-    buffer <- Gtk.textViewGetBuffer textView
+    -- buffer <- Gtk.textViewGetBuffer textView
     Gtk.textViewSetWrapMode textView Gtk.WrapModeWord -- Quebra de linha automática
     Gtk.widgetSetHexpand textView True
     Gtk.widgetSetVexpand textView True
@@ -91,18 +106,18 @@ app = do
     -- Ações dos botões
 
     on btnSave #clicked $ do
-        
-        filePath <- openSaveDialog
-        print(filePath)
+
         buffer <- #getBuffer textView
         (startIter, endIter) <- #getBounds buffer 
         content <- Gtk.textBufferGetText buffer startIter endIter True
+        let bufferText = T.unpack content
+        -- -- Destacar palavra "teste" em vermelho
+        -- highlightWord "batata" buffer
         
-        -- Destacar palavra "teste" em vermelho
-        highlightWord "batata" buffer
-        
-        let stringContent = T.unpack content
-        writeFile filePath stringContent 
+        erradas <- Idiom.findWrongWordsList bufferText
+        print erradas
+        abreJanelaSave bufferText
+
 
     Gtk.onWidgetDestroy win Gtk.mainQuit
     #showAll win
