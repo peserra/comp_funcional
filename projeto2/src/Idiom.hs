@@ -4,8 +4,78 @@ import qualified Data.List as L
 --import qualified Data.Text as T
 import Data.Char
 
+data Lingua = English | French | German | Portuguese | Spanish deriving (Enum,Show, Eq, Ord)
 
-data Languages = English | French | German | Portuguese | Spanish deriving (Enum,Show, Eq, Ord)
+data Treinamentos = Treinamentos {
+    dictTreinamentos  :: Dict Lingua [(String, Int)]
+} 
+
+data EstadoAplicacao = EstadoAplicacao {
+    treinamentos    :: Treinamentos,
+    linguaAtual     :: Lingua,
+    conteudoTexto   :: [String]
+}
+
+type Estado a = State EstadoAplicacao a
+
+pegaConteudo :: [String] -> Estado ()
+pegaConteudo bs = modify $ \s -> s{conteudoTexto = bs}
+
+
+achaLingua :: [(String, Int)] -> Estado Lingua
+achaLingua cmps = do
+    -- guarda os treinamentos
+    ts <- gets treinamentos
+    -- determina a lingua
+    l <- fmap (fmap (`encontraDiferencaAbs` cmps)) (values ts) 
+    modify $ \s -> s{linguaAtual = l}
+    return l
+
+
+treinaLinguas :: Dict Lingua String -> Treinamentos
+treinaLinguas ls =
+    let lstFreqs = map (take 300 . criaListaFrequencia) (values ls) in
+    -- associando cada lista de frequencia a uma entrada da lista
+        zip (keys ls) (map fst ls map (criaListaIndx ) lstFreqs)
+
+
+leArquivos:: IO (Dict Lingua String)
+leArquivos = do
+    eng <- readFile "TextosInput/eng.txt"
+    frn <- readFile "TextosInput/frn.txt"
+    ger <- readFile "TextosInput/ger.txt"
+    por <- readFile "TextosInput/por.txt"
+    spn <- readFile "TextosInput/spn.txt"
+
+     -- cria listas das top frequencias indexadas dos arquivos para referencia
+    let listaRefs = [eng, frn, ger, por, spn]
+    return $ zip [English ..] listaRefs 
+
+type Dict k v = [(k, v)]
+
+-- Consulta e devolve, caso exista, a entrada do dicionário cuja chave
+-- corresponde à chave fornecida
+dictGet :: Eq k => k -> Dict k v -> Maybe v
+dictGet _ [] = Nothing
+dictGet k ((k0,v0) : kvs)
+  | k == k0 = Just v0
+  | otherwise = dictGet k kvs
+
+-- Coloca um novo valor no dicionário substituindo o valor já existe
+-- pelo novo caso a chave já esteja presente
+dictPut :: Eq k => k -> v -> Dict k v -> Dict k v
+dictPut k v [] = [(k, v)]
+dictPut k v ((k0, v0) : kvs)
+  | k == k0 = (k, v) : kvs
+  | otherwise = (k0, v0) : dictPut k v kvs
+
+keys :: Dict k v -> [k]
+keys d = map fst d
+
+values :: Dict k v -> [v]
+values d = map snd d
+
+
 
 
 criaListaIndx :: [(String, Int)] -> [(String, Int)]
@@ -46,20 +116,7 @@ criaListaFrequencia :: String -> [(String, Int)]
 criaListaFrequencia txt = ordenaNGramas . dicionario . concat $ criaListaNGramasTexto txt
 
 detectIdiom text = do
-    let tamLista = 300 
-
-    eng <- readFile "TextosInput/eng.txt"
-    frn <- readFile "TextosInput/frn.txt"
-    ger <- readFile "TextosInput/ger.txt"
-    por <- readFile "TextosInput/por.txt"
-    spn <- readFile "TextosInput/spn.txt"
-    cmp <- readFile "TextosInput/app_saved_text.txt"
-
-    -- cria listas das top frequencias indexadas dos arquivos para referencia
-    let listaRefs = [eng, frn, ger, por, spn]
-    let lstFreqs = map (take tamLista . criaListaFrequencia) listaRefs
-    let freqIndx = map criaListaIndx lstFreqs
-    
+       
     -- cria separadamente a lista de frequencia e o indexamento do ngrama do texto de input
     let lstFreqComp =  take tamLista $ criaListaFrequencia cmp
     let idxCmp = criaListaIndx lstFreqComp

@@ -20,16 +20,6 @@
   (major1) == 4 && (major2) <  18 || \
   (major1) == 4 && (major2) == 18 && (minor) <= 2)
 #endif /* MIN_VERSION_base */
-/* package process-1.6.19.0 */
-#ifndef VERSION_process
-#define VERSION_process "1.6.19.0"
-#endif /* VERSION_process */
-#ifndef MIN_VERSION_process
-#define MIN_VERSION_process(major1,major2,minor) (\
-  (major1) <  1 || \
-  (major1) == 1 && (major2) <  6 || \
-  (major1) == 1 && (major2) == 6 && (minor) <= 19)
-#endif /* MIN_VERSION_process */
 
 /* tool gcc-11 */
 #ifndef TOOL_VERSION_gcc
@@ -123,8 +113,11 @@
 #endif /* MIN_TOOL_VERSION_strip */
 
 #ifndef CURRENT_COMPONENT_ID
-#define CURRENT_COMPONENT_ID "playground-0.1.0.0-LWgUxFD3US1Gp42WX33dEO-playground"
+#define CURRENT_COMPONENT_ID "playground-0.1.0.0-Lcov7p8JRBt4A38uVMwVpR-playground"
 #endif /* CURRENT_COMPONENT_ID */
 #ifndef CURRENT_PACKAGE_VERSION
 #define CURRENT_PACKAGE_VERSION "0.1.0.0"
 #endif /* CURRENT_PACKAGE_VERSION */
+
+#undef CURRENT_PACKAGE_KEY
+#undef CURRENT_COMPONENT_ID

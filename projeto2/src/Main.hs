@@ -8,6 +8,7 @@ import Data.GI.Base
 import qualified GI.Gtk as Gtk
 import qualified Data.Text as T
 import Data.Int (Int32)
+import Idiom
 --import Control.Concurrent.MVar (newEmptyMVar, putMVar, takeMVar)
 import Control.Monad.IO.Class (liftIO)
 
@@ -33,6 +34,7 @@ openSaveDialog = do
             -- Fecha o diálogo se o usuário cancelar
             Gtk.widgetDestroy dialog
             return Nothing
+
 -- chat gpt com modificações
 
 highlightWord word buffer = do

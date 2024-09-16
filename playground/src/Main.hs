@@ -1,5 +1,7 @@
 module Main (main) where
+import System.Process
 
 main :: IO ()
 main = do
-  putStrLn "hello world"
+    output <- readProcess "aspell" ["-s","banna"] ""
+    putStrLn output
