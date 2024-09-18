@@ -1,4 +1,6 @@
-module Idiom (findWrongWordsList) where
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Avoid reverse" #-}
+module Idiom (achaListaPalavrasErradas, inicializa) where
 import qualified Data.Map as M
 import qualified Data.List as L
 --import qualified Data.Text as T
@@ -41,8 +43,10 @@ achaLingua comparado = do
     modify $ \s -> s{linguaAtual = l}
     
     -- pega o correspondente do dicionario aspell
-    ld <- gets linguaAspell
-    let aspell_dict = dictGet l ld
+    lDict <- gets linguaAspell    
+    
+    
+    let aspell_dict = dictGet l lDict
     
     return $ fromMaybe "" aspell_dict
 
@@ -54,6 +58,25 @@ treinaLinguas ls =
     let lstFreqs = map (take 300 . criaListaFrequencia) (values ls) in
         let lstIndxFreqs = map criaListaIndx lstFreqs in
             Treinamentos $ zip (keys ls) lstIndxFreqs
+
+-- atribui e retorna o estado inicial da aplicação, realizando o treinamento
+inicializa :: IO EstadoAplicacao
+inicializa = do
+     -- Lê os arquivos de treinamento
+    arquivos <- leArquivos
+    
+    -- Cria os treinamentos (lista de frequências)
+    let trs = treinaLinguas arquivos
+    let dictLinguas = zip [English ..] ["en_US", "fr_FR", "de_DE", "pt_BR", "es_LA"]
+    
+    -- Define o estado inicial com os treinamentos e outros valores padrão
+    let estadoInicial = EstadoAplicacao {
+            treinamentos = trs,
+            linguaAtual = English,  -- Valor padrão
+            linguaAspell = dictLinguas
+        }
+    return estadoInicial
+    
 
 
 leArquivos:: IO (Dict Lingua String)
@@ -77,13 +100,6 @@ dictGet k ((k0,v0) : kvs)
   | k == k0 = Just v0
   | otherwise = dictGet k kvs
 
--- Coloca um novo valor no dicionário substituindo o valor já existe
--- pelo novo caso a chave já esteja presente
-dictPut :: Eq k => k -> v -> Dict k v -> Dict k v
-dictPut k v [] = [(k, v)]
-dictPut k v ((k0, v0) : kvs)
-  | k == k0 = (k, v) : kvs
-  | otherwise = (k0, v0) : dictPut k v kvs
 
 keys :: Dict k v -> [k]
 keys = map fst
@@ -140,35 +156,21 @@ criaListaNGramasTexto txt = aplica3Grama $ L.map ajustaString $ words txt
 criaListaFrequencia :: String -> [(String, Int)]
 criaListaFrequencia txt = ordenaNGramas . dicionario . concat $ criaListaNGramasTexto txt
 
-detectLanguage :: String -> IO String
-detectLanguage text = do
-    -- Lê os arquivos de treinamento
-    arquivos <- leArquivos
-    
-    -- Cria os treinamentos (lista de frequências)
-    let trs = treinaLinguas arquivos
-    
+-- recebe o buffer do texto e o estaod inicial, devolvendo qual lingua o texto esta escrito
+rodaEncontraLingua :: String -> EstadoAplicacao -> IO String
+rodaEncontraLingua text estadoInicial = do
     -- Cria a lista de frequência de n-gramas do texto de entrada
     let lstFreqComp = take 300 $ criaListaFrequencia text
     let idxCmp = criaListaIndx lstFreqComp
-
-    let dictLinguas = zip [English ..] ["en_US", "fr_FR", "de_DE", "pt_BR", "es_LA"]
-    
-    -- Define o estado inicial com os treinamentos e outros valores padrão
-    let estadoInicial = EstadoAplicacao {
-            treinamentos = trs,
-            linguaAtual = English,  -- Valor padrão
-            linguaAspell = dictLinguas
-        }
-    
+   
     -- Avalia o estado e executa a função achaLingua
     return $ evalState (achaLingua idxCmp) estadoInicial
 
 
-findWrongWordsList :: String -> IO [String]
-findWrongWordsList buffer = do
-    l <- detectLanguage buffer
-    print l 
+-- retorna a lista de palavras erradas encontradas pelo aspell
+achaListaPalavrasErradas :: String -> EstadoAplicacao -> IO [String]
+achaListaPalavrasErradas buffer estadoInicial = do
+    l <- rodaEncontraLingua buffer estadoInicial
     rodaAspell (words buffer) l
     
      

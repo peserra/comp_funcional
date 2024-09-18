@@ -46,12 +46,12 @@ getBinDir, getLibDir, getDynLibDir, getDataDir, getLibexecDir, getSysconfDir :: 
 
 
 bindir, libdir, dynlibdir, datadir, libexecdir, sysconfdir :: FilePath
-bindir     = "/mnt/Dados/code/haskell/playground/.stack-work/install/x86_64-linux/fccabf1b90be6eccea69f7c19ac9b8d81887b31bde7a5c60c4f5bb068d22b6cf/9.6.6/bin"
-libdir     = "/mnt/Dados/code/haskell/playground/.stack-work/install/x86_64-linux/fccabf1b90be6eccea69f7c19ac9b8d81887b31bde7a5c60c4f5bb068d22b6cf/9.6.6/lib/x86_64-linux-ghc-9.6.6/playground-0.1.0.0-LWgUxFD3US1Gp42WX33dEO-playground"
-dynlibdir  = "/mnt/Dados/code/haskell/playground/.stack-work/install/x86_64-linux/fccabf1b90be6eccea69f7c19ac9b8d81887b31bde7a5c60c4f5bb068d22b6cf/9.6.6/lib/x86_64-linux-ghc-9.6.6"
-datadir    = "/mnt/Dados/code/haskell/playground/.stack-work/install/x86_64-linux/fccabf1b90be6eccea69f7c19ac9b8d81887b31bde7a5c60c4f5bb068d22b6cf/9.6.6/share/x86_64-linux-ghc-9.6.6/playground-0.1.0.0"
-libexecdir = "/mnt/Dados/code/haskell/playground/.stack-work/install/x86_64-linux/fccabf1b90be6eccea69f7c19ac9b8d81887b31bde7a5c60c4f5bb068d22b6cf/9.6.6/libexec/x86_64-linux-ghc-9.6.6/playground-0.1.0.0"
-sysconfdir = "/mnt/Dados/code/haskell/playground/.stack-work/install/x86_64-linux/fccabf1b90be6eccea69f7c19ac9b8d81887b31bde7a5c60c4f5bb068d22b6cf/9.6.6/etc"
+bindir     = "/mnt/c/Users/pedro/OneDrive/code/haskell/playground/.stack-work/install/x86_64-linux/c9879836731725910bb7802ad918a11d4bd6ce1cab044e48e67bafd4d6a57388/9.6.6/bin"
+libdir     = "/mnt/c/Users/pedro/OneDrive/code/haskell/playground/.stack-work/install/x86_64-linux/c9879836731725910bb7802ad918a11d4bd6ce1cab044e48e67bafd4d6a57388/9.6.6/lib/x86_64-linux-ghc-9.6.6/playground-0.1.0.0-LWgUxFD3US1Gp42WX33dEO-playground"
+dynlibdir  = "/mnt/c/Users/pedro/OneDrive/code/haskell/playground/.stack-work/install/x86_64-linux/c9879836731725910bb7802ad918a11d4bd6ce1cab044e48e67bafd4d6a57388/9.6.6/lib/x86_64-linux-ghc-9.6.6"
+datadir    = "/mnt/c/Users/pedro/OneDrive/code/haskell/playground/.stack-work/install/x86_64-linux/c9879836731725910bb7802ad918a11d4bd6ce1cab044e48e67bafd4d6a57388/9.6.6/share/x86_64-linux-ghc-9.6.6/playground-0.1.0.0"
+libexecdir = "/mnt/c/Users/pedro/OneDrive/code/haskell/playground/.stack-work/install/x86_64-linux/c9879836731725910bb7802ad918a11d4bd6ce1cab044e48e67bafd4d6a57388/9.6.6/libexec/x86_64-linux-ghc-9.6.6/playground-0.1.0.0"
+sysconfdir = "/mnt/c/Users/pedro/OneDrive/code/haskell/playground/.stack-work/install/x86_64-linux/c9879836731725910bb7802ad918a11d4bd6ce1cab044e48e67bafd4d6a57388/9.6.6/etc"
 
 getBinDir     = catchIO (getEnv "playground_bindir")     (\_ -> return bindir)
 getLibDir     = catchIO (getEnv "playground_libdir")     (\_ -> return libdir)

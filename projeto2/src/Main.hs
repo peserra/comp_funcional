@@ -2,6 +2,9 @@
 {-# LANGUAGE OverloadedLabels  #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# OPTIONS_GHC -Wno-unused-do-bind #-}
+{-# LANGUAGE DataKinds #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Use when" #-}
 module Main (main) where
 
 import Data.GI.Base
@@ -10,6 +13,9 @@ import qualified Data.Text as T
 import Data.Int (Int32)
 
 import Idiom
+import qualified Data.GI.Base.Overloading
+import Control.Monad.IO.Class
+import qualified GHC.OverloadedLabels
 
 getCaminhoArquivo :: Gtk.Entry -> IO String
 getCaminhoArquivo entry = do
@@ -24,6 +30,7 @@ salvaArquivo = writeFile
 
 
 -- cria uma janela de salvamento
+abreJanelaSave :: MonadIO m => [Char] -> m ()
 abreJanelaSave txtBuffer = do
     w <- Gtk.windowNew Gtk.WindowTypeToplevel
     Gtk.setWindowTitle w "File Name"
@@ -52,7 +59,9 @@ abreJanelaSave txtBuffer = do
     return ()
 
 
+
 -- chat gpt com modificações
+highlightWord :: (Data.GI.Base.Overloading.IsDescendantOf Gtk.TextBuffer a,  Control.Monad.IO.Class.MonadIO m, GObject a,  GHC.OverloadedLabels.IsLabel    "getBounds" (a -> m (Gtk.TextIter, Gtk.TextIter))) => T.Text -> a -> m ()
 highlightWord word buffer = do
       -- Cria uma tag para aplicar uma cor (ex: vermelho)
     tagRed <- new Gtk.TextTag [ #foreground := "red" ]
@@ -60,16 +69,29 @@ highlightWord word buffer = do
     Gtk.textTagTableAdd tagTable tagRed
 
     (startIter, endIter) <-  #getBounds buffer
-    text <- Gtk.textBufferGetText buffer startIter endIter True
-    let wordPos = T.breakOn word text
-    if T.null (snd wordPos) -- Verifica se encontrou a palavra
-        then return () -- Se não encontrou, não faz nada
-        else do
-            let startOffset = fromIntegral (T.length (fst wordPos)) :: Int32
-            let wordLength = fromIntegral (T.length word) :: Int32
-            wordStartIter <- Gtk.textBufferGetIterAtOffset buffer startOffset
-            wordEndIter <- Gtk.textBufferGetIterAtOffset buffer (startOffset + wordLength)
-            Gtk.textBufferApplyTag buffer tagRed wordStartIter wordEndIter
+    colorAllWords startIter endIter tagRed 0
+   
+    where
+        colorAllWords sIter eIter tag offset = do
+            text <- Gtk.textBufferGetText buffer sIter eIter True
+            let wordPos = T.breakOn word text -- quebra o text em (..., word ...)
+            if T.null (snd wordPos) -- Verifica se encontrou a palavra
+                then return () -- Se não encontrou, não faz nada
+                else do
+                    -- calcula offset + (length do texto antes de word) para iniciar busca por word
+                    let startOffset = offset + fromIntegral (T.length (fst wordPos)) :: Int32
+                    let wordLength = fromIntegral (T.length word) :: Int32
+                    -- cria dois ponteiros, apontando para o inicio e fim da palavra
+                    wordStartIter <- Gtk.textBufferGetIterAtOffset buffer startOffset
+                    wordEndIter <- Gtk.textBufferGetIterAtOffset buffer (startOffset + wordLength)
+                    -- aplica a tag de cor dentro do intervalo desses ponteiros
+                    Gtk.textBufferApplyTag buffer tag wordStartIter wordEndIter
+                    -- seleciona o novo começo como sendo a posição seguinte da palavra no buffer
+                    newStart <- Gtk.textBufferGetIterAtOffset buffer (startOffset + wordLength + 1) 
+                    --calcula valor do novo offset
+                    let newOffset = startOffset + wordLength + 1
+                    -- chamada recursiva
+                    colorAllWords newStart eIter tag newOffset 
 
 app :: IO ()
 app = do
@@ -105,18 +127,27 @@ app = do
 
     -- Ações dos botões
 
+    on btnNew #clicked $ do
+        buffer <- #getBuffer textView
+        Gtk.textBufferSetText buffer "" (-1)
+
+
     on btnSave #clicked $ do
 
         buffer <- #getBuffer textView
         (startIter, endIter) <- #getBounds buffer 
         content <- Gtk.textBufferGetText buffer startIter endIter True
         let bufferText = T.unpack content
-        -- -- Destacar palavra "teste" em vermelho
-        -- highlightWord "batata" buffer
-        
-        erradas <- Idiom.findWrongWordsList bufferText
-        print erradas
         abreJanelaSave bufferText
+        
+        estadoInicial <- Idiom.inicializa
+        erradas <- Idiom.achaListaPalavrasErradas bufferText estadoInicial
+       
+        let numWordsBuffer = length $ words bufferText
+        if numWordsBuffer > 10 
+        then mapM_ (`highlightWord` buffer) (T.pack <$> erradas) 
+        else return () 
+                
 
 
     Gtk.onWidgetDestroy win Gtk.mainQuit
